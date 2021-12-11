@@ -2,9 +2,9 @@
   "name": "software-architecture-4",
   "version": "1.0.0",
   "description": "",
-  "main": "main.js",
+  "main": "main.ts",
   "scripts": {
-    "start": "tsc helloWorld.ts && node helloWorld.js"
+    "start": "tsc main.ts && node main.js"
   },
   "repository": {
     "type": "git",
