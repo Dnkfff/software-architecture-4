@@ -1,3 +1,5 @@
+import { readFile } from 'fs';
+
 import {
   eventLoopStatusTYPE,
   callStackStatusType,
@@ -6,9 +8,12 @@ import {
   postMethodArgumentsType,
 } from './main.types';
 
-const print = (args: string) => {
+const print = (args: string | string[]) => {
   return new Promise((resolve, reject) => {
     try {
+      if (typeof args === 'object') {
+        resolve(args.join(' '));
+      }
       resolve(args);
     } catch (error) {
       reject(error);
@@ -127,23 +132,37 @@ class EventLoop {
   }
 }
 
-const main = (): void => {
+const main = async () => {
   const eventLoop = new EventLoop();
   eventLoop.start();
 
-  eventLoop.post({ command: 'print', args: 'Hello!' });
-  eventLoop.post({ command: 'palindrom', args: [1, 2, '123'] });
-  eventLoop.post({
-    command: 'setTimeoutFunc',
-    args: {
-      timer: 1000,
-      func: () => {
-        console.log('setTimeout is completed');
-      },
-    },
-  });
+  readFile('./commands.txt', 'utf8', (err, data) => {
+    if (err) {
+      throw new Error(err.toString());
+    }
 
-  eventLoop.awaitFinish();
+    const commandsArray = data.split('\r\n');
+    commandsArray.forEach((item) => {
+      const splittedItem = item.split(' ');
+      const command = splittedItem.shift();
+
+      if (!Object.keys(commandMatch).includes(command)) return;
+
+      eventLoop.post({ command, args: splittedItem.length === 1 ? splittedItem[0] : splittedItem });
+    });
+
+    eventLoop.post({
+      command: 'setTimeoutFunc',
+      args: {
+        timer: 1000,
+        func: () => {
+          console.log('setTimeout is completed');
+        },
+      },
+    });
+
+    eventLoop.awaitFinish();
+  });
 };
 
 main();

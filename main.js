@@ -36,9 +36,13 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
     }
 };
 exports.__esModule = true;
+var fs_1 = require("fs");
 var print = function (args) {
     return new Promise(function (resolve, reject) {
         try {
+            if (typeof args === 'object') {
+                resolve(args.join(' '));
+            }
             resolve(args);
         }
         catch (error) {
@@ -54,6 +58,7 @@ var palindrom = function (args) {
                 result = args.join('') + args.reverse().join('');
             }
             if (typeof args === 'string') {
+                console.log(args.split('').reverse().join(''));
                 result = args + args.split('').reverse().join('');
             }
             resolve(result);
@@ -156,20 +161,35 @@ var EventLoop = /** @class */ (function () {
     };
     return EventLoop;
 }());
-var main = function () {
-    var eventLoop = new EventLoop();
-    eventLoop.start();
-    eventLoop.post({ command: 'print', args: 'Hello!' });
-    eventLoop.post({ command: 'palindrom', args: [1, 2, '123'] });
-    eventLoop.post({
-        command: 'setTimeoutFunc',
-        args: {
-            timer: 1000,
-            func: function () {
-                console.log('setTimeout is completed');
+var main = function () { return __awaiter(void 0, void 0, void 0, function () {
+    var eventLoop;
+    return __generator(this, function (_a) {
+        eventLoop = new EventLoop();
+        eventLoop.start();
+        (0, fs_1.readFile)('./commands.txt', 'utf8', function (err, data) {
+            if (err) {
+                throw new Error(err.toString());
             }
-        }
+            var commandsArray = data.split('\r\n');
+            commandsArray.forEach(function (item) {
+                var splittedItem = item.split(' ');
+                var command = splittedItem.shift();
+                if (!Object.keys(commandMatch).includes(command))
+                    return;
+                eventLoop.post({ command: command, args: splittedItem.length === 1 ? splittedItem[0] : splittedItem });
+            });
+            eventLoop.post({
+                command: 'setTimeoutFunc',
+                args: {
+                    timer: 1000,
+                    func: function () {
+                        console.log('setTimeout is completed');
+                    }
+                }
+            });
+            eventLoop.awaitFinish();
+        });
+        return [2 /*return*/];
     });
-    eventLoop.awaitFinish();
-};
+}); };
 main();
