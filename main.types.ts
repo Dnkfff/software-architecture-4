@@ -2,10 +2,18 @@ export type openedType = 'opened';
 export type closedType = 'closed';
 export type eventLoopStatusTYPE = openedType | closedType;
 
-export const openedStatus: openedType = 'opened';
-export const closedStatus: closedType = 'closed';
+export type completedType = 'completed';
+export type pendingType = 'pending';
+export type callStackStatusType = (completedType | pendingType)[] | null;
 
 export type postMethodArgumentsType = {
   command: string;
-  args: Array<any> | string;
+  args: any;
 };
+
+export type setTimeoutFunctionTYPE = {
+  timer: number;
+  func: any;
+};
+
+export type callStackTYPE = null | Array<postMethodArgumentsType>;
